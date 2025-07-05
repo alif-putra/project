@@ -1,0 +1,86 @@
+<?php
+include 'koneksi.php';
+
+$id = $_GET['id'] ?? null;
+if (!$id) {
+    echo "ID pelanggan tidak ditemukan.";
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $jenis     = $_POST['jenisbarang'];
+    $masalah   = $_POST['masalah'];
+    $ket       = $_POST['keterangan'];
+    $tanggal   = $_POST['tanggal'];
+    $selesai   = $_POST['selesai'] ?: '0000-00-00 00:00:00';
+    $aksesoris = $_POST['aksesoris'];
+    $estimasi  = $_POST['estimasi'];
+    $now       = date('Y-m-d H:i:s');
+    $user      = 'admin';
+
+    $sql = "INSERT INTO barangterima (
+                JENISBARANG, MASALAH, KETERANGAN, TANGGAL, SELESAI,
+                AKSESORIS, ESTIMASI, USERRECORD, USERMODIFIED,
+                DATERECORD, DATEMODIFIED, VOID, ID
+            ) VALUES (
+                '$jenis', '$masalah', '$ket', '$tanggal', '$selesai',
+                '$aksesoris', '$estimasi', '$user', '$user',
+                '$now', '$now', 0, '$id'
+            )";
+
+    if (mysqli_query($conn, $sql)) {
+        header("Location: cetak.php?idpel=$id");
+        exit;
+    } else {
+        echo "<div class='w3-container w3-red w3-margin'>Gagal menyimpan data barang: " . mysqli_error($conn) . "</div>";
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Input Barang Masuk</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+</head>
+<body>
+
+<div class="w3-container w3-teal w3-padding">
+  <h2>Form Barang Masuk</h2>
+</div>
+
+<div class="w3-container w3-padding">
+  <form class="w3-card w3-padding w3-white" method="POST">
+    
+    <label class="w3-margin-top">Jenis Barang:</label>
+    <input class="w3-input w3-border" name="jenisbarang" required>
+
+    <label class="w3-margin-top">Masalah:</label>
+    <input class="w3-input w3-border" name="masalah" required>
+
+    <label class="w3-margin-top">Keterangan:</label>
+    <textarea class="w3-input w3-border" name="keterangan" required></textarea>
+
+    <label class="w3-margin-top">Aksesoris:</label>
+    <input class="w3-input w3-border" name="aksesoris" required>
+
+    <label class="w3-margin-top">Estimasi Biaya (Rp):</label>
+    <input class="w3-input w3-border" name="estimasi" type="number" step="0.01" required>
+
+    <label class="w3-margin-top">Tanggal Masuk:</label>
+    <input class="w3-input w3-border" name="tanggal" type="datetime-local"
+           value="<?= date('Y-m-d\TH:i') ?>" required>
+
+    <label class="w3-margin-top">Tanggal Selesai (opsional):</label>
+    <input class="w3-input w3-border" name="selesai" type="datetime-local">
+
+    <div class="w3-margin-top">
+      <button class="w3-button w3-blue w3-round" type="submit">💾 Simpan & Cetak</button>
+      <a href="index.php" class="w3-button w3-gray w3-round">🔙 Kembali</a>
+    </div>
+  </form>
+</div>
+
+</body>
+</html>
